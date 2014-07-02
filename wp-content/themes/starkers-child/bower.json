@@ -1,0 +1,26 @@
+{
+  "name": "Castle Rock Lavender",
+  "version": "0.0.0",
+  "authors": [
+    "Adrian Miller <adrianjonmiller@gmail.com>"
+  ],
+  "description": "Wordpress theme for Castlerock Lavender",
+  "license": "MIT",
+  "homepage": "castlerocklavender.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "dont_over_think_it": "https://github.com/adrianjonmiller/dont_over_think_it.git#~0.0.1",
+    "ionicons": "~1.4.1",
+    "normalize-css": "~3.0.1",
+    "jsbehave": "https://github.com/adrianjonmiller/jsbehave.git",
+    "flexslider": "*",
+    "masonry": "~3.1.5"
+  }
+}

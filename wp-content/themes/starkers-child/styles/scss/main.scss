@@ -1,0 +1,147 @@
+// Frameworks
+@import "bourbon/bourbon";
+
+// Custom partials
+@import "resets";
+@import "vars";
+
+@import url(http://fonts.googleapis.com/css?family=Lora:400italic);
+
+
+html, body {
+	height: 100%;
+}
+
+body {
+	background-color: rgb(204, 193, 232);
+	background-image: url(../images/lavender-bg-left.jpg);
+	background-repeat: no-repeat;
+	background-position: top left;
+	font-family: 'Lucida Grande', 'Ludida Sans', 'Lucida Sans Unicode', sans-serif;
+}
+
+h2 {
+	margin-top: $pad;
+}
+
+#logo {
+	margin-top: 20px;
+}
+
+#header {
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100%;
+	background-color: rgb(72, 47, 105);
+	max-width: 265px;
+	border: solid 5px #6b4a9f;
+	border-top: none;
+	border-bottom: none;
+	margin-left: 40px;
+}
+
+.slides img {
+	max-height: 300px;
+}
+
+[role="main"] {
+	padding-left: 335px;
+	padding-right: $pad;
+	min-height: 100%;
+	margin-bottom: -30px;
+	padding-bottom: 30px;
+	
+	.page-title {
+		background-image: url(../images/header-bg.jpg);
+		background-repeat: no-repeat;
+		background-position: left top;
+		background-color: rgb(174, 156, 214);
+		margin-left: -$pad;
+		padding-left: $pad;
+		margin-right: -$pad;
+		padding-right: $pad;
+		height: 66px;
+		line-height: 66px;
+		color: #fff;
+		font-family: Lora, Georgia, serif;
+		font-style: italic;
+		text-transform: capitalize;
+		color: rgb(233, 213, 254);
+		font-size: 29px;
+		margin-top: 0;
+		margin-bottom: $pad;
+	}
+}
+
+#left-widget-area {
+	padding: 25px;
+	
+	.widget-title {
+		color: rgb(233, 213, 254);
+		font-size: 14px;
+		line-height: 1.5em;
+	}
+}
+
+#main-menu {
+	padding: 0 25px;
+
+	> li {
+		&:first-of-type { border-top: solid thin #935987 }
+		&:last-of-type	{ border-bottom: solid thin #935987 }
+		padding: 5px 0;
+		line-height: 1em;
+
+		a {
+			color: rgb(233, 213, 254);
+			font-size: 13px;
+			text-transform: uppercase;
+			letter-spacing: .03em;
+
+			&:hover { color: #a239b5 }
+		}
+	}
+}
+
+.module {
+	background-color: #fff;
+	padding: $pad/2;
+	border-radius: 5px;
+	box-shadow: 0px 0px 3px rgba(black, 0.3);
+}
+
+footer {
+	position: relative;
+
+	#copyright {
+		position: absolute;
+		right: $pad;
+	}
+}
+
+.masonry ul.products {
+
+	> li.product {
+		background-color: #fff;
+		padding: $pad/2 !important;
+		box-shadow: 0 0 4px rgba(black, 0.3);
+		margin: 0;
+		margin-bottom: 20px;
+	}
+}
+
+.related.products {
+	.products {
+		margin-top: $pad;
+		.product {
+			max-width: 200px;
+		}
+	}
+}
+
+.masonry {
+	padding-top: 50px;
+}
+
+@import "shame";

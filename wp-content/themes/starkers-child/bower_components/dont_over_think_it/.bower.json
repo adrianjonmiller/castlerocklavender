@@ -1,0 +1,15 @@
+{
+  "name": "dont_over_think_it",
+  "homepage": "https://github.com/adrianjonmiller/dont_over_think_it",
+  "version": "0.0.1",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.1",
+    "commit": "7557b88518594d4dc406eef55fea2129e55f69ba"
+  },
+  "_source": "https://github.com/adrianjonmiller/dont_over_think_it.git",
+  "_target": "~0.0.1",
+  "_originalSource": "https://github.com/adrianjonmiller/dont_over_think_it.git",
+  "_direct": true
+}

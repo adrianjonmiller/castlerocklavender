@@ -1,0 +1,1 @@
+DLN.Behaviors.flexslider=function(e){e.flexslider({controlNav:!1})},DLN.Behaviors.masonry=function(e){e.masonry({itemSelector:".product",gutter:20})};
