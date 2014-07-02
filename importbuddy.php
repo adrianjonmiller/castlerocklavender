@@ -8,6 +8,7 @@
  *
  */
 
+
 $php_minimum = '5.1'; // User's PHP must be equal or newer to this version.
 
 if ( version_compare( PHP_VERSION, $php_minimum ) < 0 ) {
