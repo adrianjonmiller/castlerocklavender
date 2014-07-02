@@ -5,8 +5,10 @@ DLN.Behaviors.flexslider = function(container){
 };
 
 DLN.Behaviors.masonry = function(container){
-	container.masonry({
-  	itemSelector: '.product',
-  	gutter: 20
+	container.imagesLoaded(function() {
+		container.masonry({
+	  	itemSelector: '.product',
+	  	gutter: 20
+		});
 	});
 };
