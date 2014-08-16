@@ -17,7 +17,15 @@
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/html-header', 'parts/shared/header' ) ); ?>
 
 <?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
-	<h2 class="page-title"><?php the_title(); ?></h2>
+	<h2 class="page-title"><span><?php the_title(); ?></span>
+		<?php wp_nav_menu(array(
+	    'container'=> 'nav',
+	    'menu_id' =>'shopping-cart-menu',
+	    'menu_class' =>'menu',
+	    'theme_location' => 'shopping-cart',
+	    'items_wrap'      => '<ul id="%1$s" class="%2$s" data-behavior="">%3$s</ul>'
+		)); ?>
+	</h2>
 	<?php endwhile; ?>
 	<div class="grid flexslider" data-behavior="flexslider">
 		<ul class="slides" id="banner">

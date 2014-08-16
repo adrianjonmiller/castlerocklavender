@@ -5,6 +5,12 @@
 @import "resets";
 @import "vars";
 
+%clearfix:after {
+	content: "";
+    display: table;
+    clear: both;
+}
+
 @import url(http://fonts.googleapis.com/css?family=Lora:400italic);
 
 
@@ -22,6 +28,13 @@ body {
 
 h2 {
 	margin-top: $pad;
+}
+
+a {
+	color: rgb(107, 74, 159);
+	&:hover {
+		color: lighten(rgb(107, 74, 159), 20%);
+	}
 }
 
 #logo {
@@ -57,6 +70,7 @@ h2 {
 		background-repeat: no-repeat;
 		background-position: left top;
 		background-color: rgb(174, 156, 214);
+		position: relative;
 		margin-left: -$pad;
 		padding-left: $pad;
 		margin-right: -$pad;
@@ -140,8 +154,51 @@ footer {
 	}
 }
 
-.masonry {
-	padding-top: 50px;
+.page-title .menu-shopping-cart-container {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+#shopping-cart-menu {
+	padding-top: $pad/2;
+	padding-right: $pad/2;
+
+	.shopping-cart {
+
+		> a {
+			text-indent: -999em;
+			width: 25px;
+			height: 25px;
+			display: block;
+			position: relative;
+			font-family: "Ionicons";
+			background-color: rgb(233, 213, 254);
+			border-radius: 4px;
+			font-style: normal;
+			font-weight: normal;
+
+			&:before {
+				content: "\f167";
+				text-indent: 0;
+				position: absolute;
+				left: 0;
+				top: 0;
+				line-height: 25px;
+				width: 25px;
+				text-align: center;
+				display: block;
+				font-size: 18px;
+			}
+			&:hover {
+				background-color: #fff;
+			}
+		}
+	}
+}
+
+.sorting {
+	@extend %clearfix;
 }
 
 @import "shame";

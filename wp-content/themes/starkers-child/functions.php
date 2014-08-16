@@ -47,6 +47,7 @@
 
 	register_nav_menu( 'primary', 'Primary Menu' );
 	register_nav_menu( 'secondary', 'Secondary Menu' );
+	register_nav_menu( 'shopping-cart', 'Shopping Cart' );
 
 	function my_register_sidebars() {
 		/**

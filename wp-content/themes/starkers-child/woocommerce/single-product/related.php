@@ -29,7 +29,11 @@ $products = new WP_Query( $args );
 
 $woocommerce_loop['columns'] = $columns;
 
+
+
 if ( $products->have_posts() ) : ?>
+
+<a class="button wc-backward" href="<?php echo get_permalink( wc_get_page_id( 'shop' ) ); ?>"><?php _e( 'Return to Store', 'woocommerce' ) ?></a>
 
 	<div class="related products">
 

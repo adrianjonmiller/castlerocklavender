@@ -15,12 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/html-header', 'parts/shared/header' ) ); ?>
 
 
-<h2 class="page-title">Lavender Products</h2>
+<h2 class="page-title"><span>Lavender Products</span>
+		<?php wp_nav_menu(array(
+	    'container'=> 'nav',
+	    'menu_id' =>'shopping-cart-menu',
+	    'menu_class' =>'menu',
+	    'theme_location' => 'shopping-cart',
+	    'items_wrap'      => '<ul id="%1$s" class="%2$s" data-behavior="">%3$s</ul>'
+		)); ?>
+</h2>
 
 
 
 		<?php if ( have_posts() ) : ?>
-
+<div class="sorting">
 			<?php
 				/**
 				 * woocommerce_before_shop_loop hook
@@ -30,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				 */
 				do_action( 'woocommerce_before_shop_loop' );
 			?>
-
+</div>
 			
 			<div class="masonry" data-behavior="masonry">
 			<?php woocommerce_product_loop_start(); ?>
