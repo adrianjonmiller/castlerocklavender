@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/html-header', 'parts/shared/header' ) ); ?>
 
 
+
+
 <h2 class="page-title"><span>Lavender Products</span>
 		<?php wp_nav_menu(array(
 	    'container'=> 'nav',
