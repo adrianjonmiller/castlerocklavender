@@ -62,6 +62,4 @@
 </div>
 <?php endwhile; ?>
 
- <a href="<?php echo get_post_type_archive_link( 'recipes' ); ?>">Movies Archive</a>
-
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/footer','parts/shared/html-footer' ) ); ?>
