@@ -94,6 +94,18 @@
 				'rewrite' => array('slug' => 'banner'),
 			)
 		);
+		register_post_type( 'recipes',
+			array(
+				'labels' => array(
+					'name' => __( 'Recipes' ),
+					'singular_name' => __( 'Recipe' )
+				),
+				'public' => true,
+				'has_archive' => true,
+				'rewrite' => array('slug' => 'recipes'),
+				'has_archive' => true,
+			)
+		);
 	}
 
 	add_action('init', 'my_custom_init');

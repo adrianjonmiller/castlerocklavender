@@ -208,6 +208,7 @@ h4 {
 	padding: $pad/2;
 	border-radius: 5px;
 	box-shadow: 0px 0px 3px rgba(black, 0.3);
+	margin-bottom: $pad;
 }
 
 footer {
@@ -278,6 +279,16 @@ footer {
 			&:hover {
 				background-color: #fff;
 			}
+		}
+	}
+}
+
+.article-title {
+	padding-bottom: $pad/2;
+	> a {
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
 		}
 	}
 }
