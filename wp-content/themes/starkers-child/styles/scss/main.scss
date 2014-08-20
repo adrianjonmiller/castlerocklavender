@@ -132,17 +132,19 @@ h4 {
 	}
 }
 
-#left-widget-area {
+.left-widget-area {
 	padding: 25px;
+	padding-bottom: 0;
 	
 	.widget-title {
 		color: rgb(233, 213, 254);
-		font-size: 14px;
-		line-height: 1.5em;
+	}
+	p, span {
+		color: #fff;
 	}
 }
 
-#right-widget-area {
+.right-widget-area {
 
 	.product_list_widget > li {
 		border-top: solid thin rgb(174, 156, 214);

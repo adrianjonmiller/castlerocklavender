@@ -59,7 +59,7 @@
 				'id' => 'primary',
 				'name' => __( 'Primary' ),
 				'description' => __( 'Primary sidebar.' ),
-				'before_widget' => '<div id="left-widget-area" class="widget %2$s">',
+				'before_widget' => '<div class="widget %2$s left-widget-area">',
 				'after_widget' => '</div>',
 				'before_title' => '<h3 class="widget-title">',
 				'after_title' => '</h3>'
@@ -71,7 +71,7 @@
 				'id' => 'right-sidebar',
 				'name' => __( 'Right Sidebar' ),
 				'description' => __( 'Right Sidebar.' ),
-				'before_widget' => '<div id="right-widget-area" class="widget %2$s">',
+				'before_widget' => '<div class="widget %2$s right-widget-area">',
 				'after_widget' => '</div>',
 				'before_title' => '<h3 class="widget-title">',
 				'after_title' => '</h3>'
