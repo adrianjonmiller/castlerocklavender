@@ -167,7 +167,8 @@ h4 {
 	> li {
 		line-height: 1em;
 		position: relative;
-		margin-right: -25px;
+		padding: 5px;
+		margin-right: -40px;
 
 		a {
 			color: rgb(204, 193, 232);
@@ -184,20 +185,41 @@ h4 {
 		}
 		&.current-menu-item, &.current_page_parent {
 			background-color: #6b4a9f;
-			> a { color: #fff; }
+			box-shadow: 0 1px 1px rgba(black, 0.6);
+			> a { 
+				padding-left: 14px;
+				color: #fff; 
+			}
+			&:before {
+				content: "";
+				display: block;
+				width: 0;
+				height: 0;
+				border-top-width: 16px;
+				border-bottom-width:16px;
+				border-left-width: 10px;
+				border-style: solid;
+				border-color: transparent;
+				border-right-color: #6b4a9f;
+				border-top-color: #6b4a9f;
+				border-bottom-color: #6b4a9f;
+				position: absolute;
+				top: 0;
+				left: -12px;
+			}
 			&:after {
 				content: "";
 				display: block;
 				width: 0;
 				height: 0;
-				border-width: 10px;
+				border-width: 5px;
 				border-style: solid;
 				border-color: transparent;
-				border-left-color: #6b4a9f;
+				border-left-color: #333;
+				border-top-color: #333;
 				position: absolute;
-				margin-top: -10px;
-				top: 50%;
-				right: -25px;
+				top: 100%;
+				right: 0;
 			}
 		}
 	}
