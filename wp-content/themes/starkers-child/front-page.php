@@ -17,7 +17,7 @@
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/html-header', 'parts/shared/header' ) ); ?>
 
 <?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
-	<h2 class="page-title"><span><?php the_title(); ?></span>
+	<h2 class="page-title"><span>Organic Lavender Farm In Washington</span>
 		<?php wp_nav_menu(array(
 	    'container'=> 'nav',
 	    'menu_id' =>'shopping-cart-menu',
@@ -33,12 +33,13 @@
 			$args = array( 'post_type' => 'banner', 'order' => 'ASC', 'orderby' => 'menu_order' );
 			$loop = new WP_Query( $args );?>
 			<?php while ( $loop->have_posts() ) : $loop->the_post();?>
-			<li>
-				<?php
-					if ( has_post_thumbnail() ) {
-						the_post_thumbnail('full');
-					} 
-				?>
+			<li class="slide">
+				<?php echo get_the_content(); ?>
+				<?php if( has_excerpt() ) { ?>
+					<div class="banner-excerpt">
+						<?php echo get_the_excerpt(); ?>
+					</div>
+				<?php	} ?>
 			</li>
 			<?php endwhile; ?>
 		</ul>
@@ -47,6 +48,7 @@
 <div class="grid">
 	<div class="col-2-3">
 		<article class="module">
+			<h3><?php the_title(); ?></h3>
 			<?php the_content(); ?>
 		</article>
 	</div>

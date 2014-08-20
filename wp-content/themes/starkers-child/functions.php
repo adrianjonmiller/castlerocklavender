@@ -65,6 +65,18 @@
 				'after_title' => '</h3>'
 			)
 		);
+
+		register_sidebar(
+			array(
+				'id' => 'right-sidebar',
+				'name' => __( 'Right Sidebar' ),
+				'description' => __( 'Right Sidebar.' ),
+				'before_widget' => '<div id="right-widget-area" class="widget %2$s">',
+				'after_widget' => '</div>',
+				'before_title' => '<h3 class="widget-title">',
+				'after_title' => '</h3>'
+			)
+		);
 	}
 
 	add_action( 'widgets_init', 'my_register_sidebars' );

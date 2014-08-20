@@ -24,6 +24,8 @@ body {
 	background-repeat: no-repeat;
 	background-position: top left;
 	font-family: 'Lucida Grande', 'Ludida Sans', 'Lucida Sans Unicode', sans-serif;
+	font-size: 100%;
+	line-height: 1.6em;
 }
 
 h2 {
@@ -35,6 +37,23 @@ a {
 	&:hover {
 		color: lighten(rgb(107, 74, 159), 20%);
 	}
+}
+
+h3 {
+	font-family: Lora, Georgia, serif;
+	font-weight: normal;
+	font-style: italic;
+	text-transform: capitalize;
+	color: rgb(72, 47, 105);
+	font-size: 29px;
+}
+
+h4 {
+	font-family: 'Lucida Grande', 'Ludida Sans', 'Lucida Sans Unicode', sans-serif;
+	font-style: normal;
+	text-transform: capitalize;
+	color: rgb(233, 213, 254);
+	font-size: 29px;
 }
 
 #logo {
@@ -54,8 +73,33 @@ a {
 	margin-left: 40px;
 }
 
+.alignleft {
+	float: left;
+	margin-right: $pad;
+}
+
 .slides img {
 	max-height: 300px;
+}
+
+.slide {
+	position: relative;
+	.banner-excerpt {
+		font-family: Lora, Georgia, serif;
+		font-style: italic;
+		text-shadow: 0 -1px #000;
+		position: absolute;
+		bottom: $pad;
+		right: 0;
+		background-color: rgba(204, 193, 232, .6);
+		padding: $pad/2;
+		font-size: 24pt;
+		line-height: 24pt;
+		color: #fff;
+		max-width: 50%;
+		text-align: right;
+		pointer-events: none;
+	}
 }
 
 [role="main"] {
@@ -98,22 +142,61 @@ a {
 	}
 }
 
+#right-widget-area {
+
+	.product_list_widget > li {
+		border-top: solid thin rgb(174, 156, 214);
+		padding: $pad/2 0;
+	}
+}
+.widget-title {
+	color: #482f69;
+	font-size: 24px;
+	line-height: 24px;
+	margin-bottom: $pad;
+}
+
 #main-menu {
-	padding: 0 25px;
+	margin: 0 25px;
+	padding: 5px 0;
+	border-top: solid thin #935987;
+	border-bottom: solid thin #935987;
 
 	> li {
-		&:first-of-type { border-top: solid thin #935987 }
-		&:last-of-type	{ border-bottom: solid thin #935987 }
-		padding: 5px 0;
 		line-height: 1em;
+		position: relative;
+		margin-right: -25px;
 
 		a {
-			color: rgb(233, 213, 254);
+			color: rgb(204, 193, 232);
 			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: .03em;
-
-			&:hover { color: #a239b5 }
+			line-height: 22px;
+			height: 22px;
+			display: block;
+			padding-left: 5px;
+		}
+		&:hover {
+			> a { color: #fff; }
+		}
+		&.current-menu-item, &.current_page_parent {
+			background-color: #6b4a9f;
+			> a { color: #fff; }
+			&:after {
+				content: "";
+				display: block;
+				width: 0;
+				height: 0;
+				border-width: 10px;
+				border-style: solid;
+				border-color: transparent;
+				border-left-color: #6b4a9f;
+				position: absolute;
+				margin-top: -10px;
+				top: 50%;
+				right: -25px;
+			}
 		}
 	}
 }
