@@ -16,7 +16,7 @@
  */
 final class WP_Customize_Manager {
 	/**
-	 * An instance of the theme that is being customized.
+	 * An instance of the theme being previewed.
 	 *
 	 * @var WP_Theme
 	 */
@@ -30,8 +30,7 @@ final class WP_Customize_Manager {
 	protected $original_stylesheet;
 
 	/**
-	 * Whether filters have been set to change the active theme to the theme being
-	 * customized.
+	 * Whether this is a Customizer pageload.
 	 *
 	 * @var boolean
 	 */
@@ -44,10 +43,11 @@ final class WP_Customize_Manager {
 	 */
 	public $widgets;
 
-	protected $settings = array();
-	protected $panels   = array();
-	protected $sections = array();
-	protected $controls = array();
+	protected $settings   = array();
+	protected $containers = array();
+	protected $panels     = array();
+	protected $sections   = array();
+	protected $controls   = array();
 
 	protected $nonce_tick;
 
@@ -67,6 +67,7 @@ final class WP_Customize_Manager {
 	 */
 	public function __construct() {
 		require( ABSPATH . WPINC . '/class-wp-customize-setting.php' );
+		require( ABSPATH . WPINC . '/class-wp-customize-panel.php' );
 		require( ABSPATH . WPINC . '/class-wp-customize-section.php' );
 		require( ABSPATH . WPINC . '/class-wp-customize-control.php' );
 		require( ABSPATH . WPINC . '/class-wp-customize-widgets.php' );
@@ -157,8 +158,9 @@ final class WP_Customize_Manager {
 
 		show_admin_bar( false );
 
-		if ( ! current_user_can( 'edit_theme_options' ) )
+		if ( ! current_user_can( 'customize' ) ) {
 			$this->wp_die( -1 );
+		}
 
 		$this->original_stylesheet = get_stylesheet();
 
@@ -182,7 +184,6 @@ final class WP_Customize_Manager {
 				$this->wp_die( -1 );
 		}
 
-		// All good, let's do some internal business to preview the theme.
 		$this->start_previewing_theme();
 	}
 
@@ -199,7 +200,8 @@ final class WP_Customize_Manager {
 	}
 
 	/**
-	 * Start previewing the selected theme by adding filters to change the current theme.
+	 * If the theme to be previewed isn't the active theme, add filter callbacks
+	 * to swap it out at runtime.
 	 *
 	 * @since 3.4.0
 	 */
@@ -305,6 +307,17 @@ final class WP_Customize_Manager {
 	}
 
 	/**
+	 * Get the registered containers.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return array
+	 */
+	public function containers() {
+		return $this->containers;
+	}
+
+	/**
 	 * Get the registered sections.
 	 *
 	 * @since 3.4.0
@@ -319,8 +332,9 @@ final class WP_Customize_Manager {
 	 * Get the registered panels.
 	 *
 	 * @since 4.0.0
+	 * @access public
 	 *
-	 * @return array
+	 * @return array Panels.
 	 */
 	public function panels() {
 		return $this->panels;
@@ -406,6 +420,7 @@ final class WP_Customize_Manager {
 		$this->prepare_controls();
 
 		wp_enqueue_script( 'customize-preview' );
+		add_action( 'wp', array( $this, 'customize_preview_override_404_status' ) );
 		add_action( 'wp_head', array( $this, 'customize_preview_base' ) );
 		add_action( 'wp_head', array( $this, 'customize_preview_html5' ) );
 		add_action( 'wp_footer', array( $this, 'customize_preview_settings' ), 20 );
@@ -425,6 +440,19 @@ final class WP_Customize_Manager {
 		 * @param WP_Customize_Manager $this WP_Customize_Manager instance.
 		 */
 		do_action( 'customize_preview_init', $this );
+	}
+
+	/**
+	 * Prevent sending a 404 status when returning the response for the customize
+	 * preview, since it causes the jQuery AJAX to fail. Send 200 instead.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 */
+	public function customize_preview_override_404_status() {
+		if ( is_404() ) {
+			status_header( 200 );
+		}
 	}
 
 	/**
@@ -462,7 +490,8 @@ final class WP_Customize_Manager {
 	public function customize_preview_settings() {
 		$settings = array(
 			'values'  => array(),
-			'channel' => esc_js( $_POST['customize_messenger_channel'] ),
+			'channel' => wp_unslash( $_POST['customize_messenger_channel'] ),
+			'activeControls' => array(),
 		);
 
 		if ( 2 == $this->nonce_tick ) {
@@ -474,6 +503,9 @@ final class WP_Customize_Manager {
 
 		foreach ( $this->settings as $id => $setting ) {
 			$settings['values'][ $id ] = $setting->js_value();
+		}
+		foreach ( $this->controls as $id => $control ) {
+			$settings['activeControls'][ $id ] = $control->active();
 		}
 
 		?>
@@ -663,9 +695,10 @@ final class WP_Customize_Manager {
 	 * Add a customize panel.
 	 *
 	 * @since 4.0.0
+	 * @access public
 	 *
 	 * @param WP_Customize_Panel|string $id   Customize Panel object, or Panel ID.
-	 * @param array                     $args Panel arguments.
+	 * @param array                     $args Optional. Panel arguments. Default empty array.
 	 */
 	public function add_panel( $id, $args = array() ) {
 		if ( is_a( $id, 'WP_Customize_Panel' ) ) {
@@ -682,9 +715,10 @@ final class WP_Customize_Manager {
 	 * Retrieve a customize panel.
 	 *
 	 * @since 4.0.0
+	 * @access public
 	 *
-	 * @param string $id Panel ID.
-	 * @return WP_Customize_Panel
+	 * @param string $id Panel ID to get.
+	 * @return WP_Customize_Panel Requested panel instance.
 	 */
 	public function get_panel( $id ) {
 		if ( isset( $this->panels[ $id ] ) ) {
@@ -696,8 +730,9 @@ final class WP_Customize_Manager {
 	 * Remove a customize panel.
 	 *
 	 * @since 4.0.0
+	 * @access public
 	 *
-	 * @param string $id Panel ID.
+	 * @param string $id Panel ID to remove.
 	 */
 	public function remove_panel( $id ) {
 		unset( $this->panels[ $id ] );
@@ -868,6 +903,10 @@ final class WP_Customize_Manager {
 			$panels[] = $panel;
 		}
 		$this->panels = $panels;
+
+		// Sort panels and top-level sections together.
+		$this->containers = array_merge( $this->panels, $this->sections );
+		uasort( $this->containers, array( $this, '_cmp_priority' ) );
 	}
 
 	/**
@@ -1002,7 +1041,7 @@ final class WP_Customize_Manager {
 		$this->add_control( new WP_Customize_Background_Image_Control( $this ) );
 
 		$this->add_setting( 'background_repeat', array(
-			'default'        => 'repeat',
+			'default'        => get_theme_support( 'custom-background', 'default-repeat' ),
 			'theme_supports' => 'custom-background',
 		) );
 
@@ -1019,7 +1058,7 @@ final class WP_Customize_Manager {
 		) );
 
 		$this->add_setting( 'background_position_x', array(
-			'default'        => 'left',
+			'default'        => get_theme_support( 'custom-background', 'default-position-x' ),
 			'theme_supports' => 'custom-background',
 		) );
 
@@ -1035,7 +1074,7 @@ final class WP_Customize_Manager {
 		) );
 
 		$this->add_setting( 'background_attachment', array(
-			'default'        => 'fixed',
+			'default'        => get_theme_support( 'custom-background', 'default-attachment' ),
 			'theme_supports' => 'custom-background',
 		) );
 
@@ -1044,8 +1083,8 @@ final class WP_Customize_Manager {
 			'section'    => 'background_image',
 			'type'       => 'radio',
 			'choices'    => array(
-				'fixed'      => __('Fixed'),
 				'scroll'     => __('Scroll'),
+				'fixed'      => __('Fixed'),
 			),
 		) );
 

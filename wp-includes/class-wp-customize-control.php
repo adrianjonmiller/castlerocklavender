@@ -85,6 +85,20 @@ class WP_Customize_Control {
 	 */
 	public $type = 'text';
 
+	/**
+	 * Callback.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 *
+	 * @see WP_Customize_Control::active()
+	 *
+	 * @var callable Callback is called with one argument, the instance of
+	 *               WP_Customize_Control, and returns bool to indicate whether
+	 *               the control is active (such as it relates to the URL
+	 *               currently being previewed).
+	 */
+	public $active_callback = '';
 
 	/**
 	 * Constructor.
@@ -102,16 +116,21 @@ class WP_Customize_Control {
 	public function __construct( $manager, $id, $args = array() ) {
 		$keys = array_keys( get_object_vars( $this ) );
 		foreach ( $keys as $key ) {
-			if ( isset( $args[ $key ] ) )
+			if ( isset( $args[ $key ] ) ) {
 				$this->$key = $args[ $key ];
+			}
 		}
 
 		$this->manager = $manager;
 		$this->id = $id;
+		if ( empty( $this->active_callback ) ) {
+			$this->active_callback = array( $this, 'active_callback' );
+		}
 
 		// Process settings.
-		if ( empty( $this->settings ) )
+		if ( empty( $this->settings ) ) {
 			$this->settings = $id;
+		}
 
 		$settings = array();
 		if ( is_array( $this->settings ) ) {
@@ -132,6 +151,45 @@ class WP_Customize_Control {
 	 */
 	public function enqueue() {}
 
+	/**
+	 * Check whether control is active to current customizer preview.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 *
+	 * @return bool Whether the control is active to the current preview.
+	 */
+	public final function active() {
+		$control = $this;
+		$active = call_user_func( $this->active_callback, $this );
+
+		/**
+		 * Filter response of WP_Customize_Control::active().
+		 *
+		 * @since 4.0.0
+		 *
+		 * @param bool                 $active  Whether the Customizer control is active.
+		 * @param WP_Customize_Control $control WP_Customize_Control instance.
+		 */
+		$active = apply_filters( 'customize_control_active', $active, $control );
+
+		return $active;
+	}
+
+	/**
+	 * Default callback used when invoking WP_Customize_Control::active().
+	 *
+	 * Subclasses can override this with their specific logic, or they may
+	 * provide an 'active_callback' argument to the constructor.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 *
+	 * @return bool Always true.
+	 */
+	public function active_callback() {
+		return true;
+	}
 
 	/**
 	 * Fetch a setting's value.
@@ -143,8 +201,9 @@ class WP_Customize_Control {
 	 * @return mixed The requested setting's value, if the setting exists.
 	 */
 	public final function value( $setting_key = 'default' ) {
-		if ( isset( $this->settings[ $setting_key ] ) )
+		if ( isset( $this->settings[ $setting_key ] ) ) {
 			return $this->settings[ $setting_key ]->value();
+		}
 	}
 
 	/**
@@ -159,6 +218,7 @@ class WP_Customize_Control {
 		}
 
 		$this->json['type'] = $this->type;
+		$this->json['active'] = $this->active();
 	}
 
 	/**
@@ -256,10 +316,11 @@ class WP_Customize_Control {
 		echo $this->get_link( $setting_key );
 	}
 
- 	/**
+	/**
 	 * Render the custom attributes for the control's input element.
 	 *
 	 * @since 4.0.0
+	 * @access public
 	 */
 	public function input_attrs() {
 		foreach( $this->input_attrs as $attr => $value ) {
@@ -285,7 +346,7 @@ class WP_Customize_Control {
 					<input type="checkbox" value="<?php echo esc_attr( $this->value() ); ?>" <?php $this->link(); checked( $this->value() ); ?> />
 					<?php echo esc_html( $this->label ); ?>
 					<?php if ( ! empty( $this->description ) ) : ?>
-						<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+						<span class="description customize-control-description"><?php echo $this->description; ?></span>
 					<?php endif; ?>
 				</label>
 				<?php
@@ -300,7 +361,7 @@ class WP_Customize_Control {
 					<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 				<?php endif;
 				if ( ! empty( $this->description ) ) : ?>
-					<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+					<span class="description customize-control-description"><?php echo $this->description ; ?></span>
 				<?php endif;
 
 				foreach ( $this->choices as $value => $label ) :
@@ -322,7 +383,7 @@ class WP_Customize_Control {
 						<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 					<?php endif;
 					if ( ! empty( $this->description ) ) : ?>
-						<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+						<span class="description customize-control-description"><?php echo $this->description; ?></span>
 					<?php endif; ?>
 
 					<select <?php $this->link(); ?>>
@@ -341,7 +402,7 @@ class WP_Customize_Control {
 						<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 					<?php endif;
 					if ( ! empty( $this->description ) ) : ?>
-						<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+						<span class="description customize-control-description"><?php echo $this->description; ?></span>
 					<?php endif; ?>
 					<textarea rows="5" <?php $this->link(); ?>><?php echo esc_textarea( $this->value() ); ?></textarea>
 				</label>
@@ -374,7 +435,7 @@ class WP_Customize_Control {
 						<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 					<?php endif;
 					if ( ! empty( $this->description ) ) : ?>
-						<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+						<span class="description customize-control-description"><?php echo $this->description; ?></span>
 					<?php endif; ?>
 					<input type="<?php echo esc_attr( $this->type ); ?>" <?php $this->input_attrs(); ?> value="<?php echo esc_attr( $this->value() ); ?>" <?php $this->link(); ?> />
 				</label>
@@ -460,7 +521,7 @@ class WP_Customize_Color_Control extends WP_Customize_Control {
 				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 			<?php endif;
 			if ( ! empty( $this->description ) ) : ?>
-				<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+				<span class="description customize-control-description"><?php echo $this->description; ?></span>
 			<?php endif; ?>
 
 			<div class="customize-control-content">
@@ -523,7 +584,7 @@ class WP_Customize_Upload_Control extends WP_Customize_Control {
 				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 			<?php endif;
 			if ( ! empty( $this->description ) ) : ?>
-				<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+				<span class="description customize-control-description"><?php echo $this->description; ?></span>
 			<?php endif; ?>
 			<div>
 				<a href="#" class="button-secondary upload"><?php _e( 'Upload' ); ?></a>
@@ -610,7 +671,7 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 			<?php endif;
 			if ( ! empty( $this->description ) ) : ?>
-				<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+				<span class="description customize-control-description"><?php echo $this->description; ?></span>
 			<?php endif; ?>
 
 			<div class="customize-control-content">
@@ -681,7 +742,7 @@ class WP_Customize_Image_Control extends WP_Customize_Upload_Control {
 	 */
 	public function tab_upload_new() {
 		if ( ! _device_can_upload() ) {
-			echo '<p>' . sprintf( __('The web browser on your device cannot be used to upload files. You may be able to use the <a href="%s">native app for your device</a> instead.'), 'https://wordpress.org/mobile/' ) . '</p>';
+			echo '<p>' . sprintf( __('The web browser on your device cannot be used to upload files. You may be able to use the <a href="%s">native app for your device</a> instead.'), 'http://apps.wordpress.org/' ) . '</p>';
 		} else {
 			?>
 			<div class="upload-dropzone">
@@ -995,6 +1056,18 @@ class WP_Widget_Area_Customize_Control extends WP_Customize_Control {
 		</span>
 		<?php
 	}
+
+	/**
+	 * Whether the current sidebar is rendered on the page.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 *
+	 * @return bool Whether sidebar is rendered.
+	 */
+	public function active_callback() {
+		return $this->manager->widgets->is_sidebar_rendered( $this->sidebar_id );
+	}
 }
 
 /**
@@ -1034,6 +1107,18 @@ class WP_Widget_Form_Customize_Control extends WP_Customize_Control {
 
 		$args = wp_list_widget_controls_dynamic_sidebar( array( 0 => $args, 1 => $widget['params'][0] ) );
 		echo $this->manager->widgets->get_widget_control( $args );
+	}
+
+	/**
+	 * Whether the current widget is rendered on the page.
+	 *
+	 * @since 4.0.0
+	 * @access public
+	 *
+	 * @return bool Whether the widget is rendered.
+	 */
+	function active_callback() {
+		return $this->manager->widgets->is_widget_rendered( $this->widget_id );
 	}
 }
 

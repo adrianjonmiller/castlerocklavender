@@ -105,7 +105,7 @@ function the_title_attribute( $args = '' ) {
  *
  * @since 0.71
  *
- * @param int|WP_Post $post Optional. Post ID or WP_Post object. Default is global `$post`.
+ * @param int|WP_Post $post Optional. Post ID or WP_Post object. Default is global $post.
  * @return string
  */
 function get_the_title( $post = 0 ) {
@@ -436,8 +436,13 @@ function get_post_class( $class = '', $post_id = null ) {
 	}
 
 	// sticky for Sticky Posts
-	if ( is_sticky($post->ID) && is_home() && !is_paged() )
-		$classes[] = 'sticky';
+	if ( is_sticky( $post->ID ) ) {
+		if ( is_home() && ! is_paged() ) {
+			$classes[] = 'sticky';
+		} elseif ( is_admin() ) {
+			$classes[] = 'status-sticky';
+		}
+	}
 
 	// hentry for hAtom compliance
 	$classes[] = 'hentry';
@@ -1091,23 +1096,22 @@ function wp_list_pages( $args = '' ) {
  * wp_list_pages()} function. Check that function for more info on those
  * arguments.
  *
- * <ul>
- * <li><strong>sort_column</strong> - How to sort the list of pages. Defaults
- * to 'menu_order, post_title'. Use column for posts table.</li>
- * <li><strong>menu_class</strong> - Class to use for the div ID which contains
- * the page list. Defaults to 'menu'.</li>
- * <li><strong>echo</strong> - Whether to echo list or return it. Defaults to
- * echo.</li>
- * <li><strong>link_before</strong> - Text before show_home argument text.</li>
- * <li><strong>link_after</strong> - Text after show_home argument text.</li>
- * <li><strong>show_home</strong> - If you set this argument, then it will
- * display the link to the home page. The show_home argument really just needs
- * to be set to the value of the text of the link.</li>
- * </ul>
- *
  * @since 2.7.0
  *
- * @param array|string $args
+ * @param array|string $args {
+ *     Optional. Arguments to generate a page menu. {@see wp_list_pages()}
+ *     for additional arguments.
+ *
+ * @type string     $sort_column How to short the list of pages. Accepts post column names.
+ *                               Default 'menu_order, post_title'.
+ * @type string     $menu_class  Class to use for the div ID containing the page list. Default 'menu'.
+ * @type bool       $echo        Whether to echo the list or return it. Accepts true (echo) or false (return).
+ *                               Default true.
+ * @type string     $link_before The HTML or text to prepend to $show_home text. Default empty.
+ * @type string     $link_after  The HTML or text to append to $show_home text. Default empty.
+ * @type int|string $show_home   Whether to display the link to the home page. Can just enter the text
+ *                               you'd like shown for the home link. 1|true defaults to 'Home'.
+ * }
  * @return string html menu
  */
 function wp_page_menu( $args = array() ) {
@@ -1516,6 +1520,9 @@ function prepend_attachment($content) {
 			$atts['width'] = (int) $meta['width'];
 			$atts['height'] = (int) $meta['height'];
 		}
+		if ( has_post_thumbnail() ) {
+			$atts['poster'] = wp_get_attachment_url( get_post_thumbnail_id() );
+		}
 		$p = wp_video_shortcode( $atts );
 	} elseif ( 0 === strpos( $post->post_mime_type, 'audio' ) ) {
 		$p = wp_audio_shortcode( array( 'src' => wp_get_attachment_url() ) );
@@ -1549,7 +1556,7 @@ function prepend_attachment($content) {
  *
  * @since 1.0.0
  *
- * @param int|WP_Post $post Optional. Post ID or WP_Post object. Default is global `$post`.
+ * @param int|WP_Post $post Optional. Post ID or WP_Post object. Default is global $post.
  * @return string HTML content for password form for password protected post.
  */
 function get_the_password_form( $post = 0 ) {
@@ -1722,7 +1729,7 @@ function wp_post_revision_title_expanded( $revision, $link = true ) {
  * @uses get_edit_post_link()
  * @uses get_the_author_meta()
  *
- * @param int|WP_Post $post_id Optional. Post ID or WP_Post object. Default is global `$post`.
+ * @param int|WP_Post $post_id Optional. Post ID or WP_Post object. Default is global $post.
  * @param string $type 'all' (default), 'revision' or 'autosave'
  * @return null
  */

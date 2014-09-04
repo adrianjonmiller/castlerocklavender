@@ -496,10 +496,10 @@ function wp_admin_bar_edit_menu( $wp_admin_bar ) {
 			if( 'draft' == $post->post_status ) {
 				$preview_link = set_url_scheme( get_permalink( $post->ID ) );
 				/** This filter is documented in wp-admin/includes/meta-boxes.php */
-				$preview_link = apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', $preview_link ) );
+				$preview_link = apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', $preview_link ), $post );
 				$wp_admin_bar->add_menu( array(
 					'id' => 'preview',
-					'title' => __( 'Preview' ),
+					'title' => $post_type_object->labels->view_item,
 					'href' => esc_url( $preview_link ),
 					'meta' => array( 'target' => 'wp-preview-' . $post->ID ),
 				) );
@@ -660,17 +660,19 @@ function wp_admin_bar_appearance_menu( $wp_admin_bar ) {
 	if ( ! current_user_can( 'edit_theme_options' ) )
 		return;
 
-	$current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	$wp_admin_bar->add_menu( array(
-		'parent' => 'appearance',
-		'id'     => 'customize',
-		'title'  => __('Customize'),
-		'href'   => add_query_arg( 'url', urlencode( $current_url ), wp_customize_url() ),
-		'meta'   => array(
-			'class' => 'hide-if-no-customize',
-		),
-	) );
-	add_action( 'wp_before_admin_bar_render', 'wp_customize_support_script' );
+	if ( current_user_can( 'customize' ) ) {
+		$current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'appearance',
+			'id'     => 'customize',
+			'title'  => __('Customize'),
+			'href'   => add_query_arg( 'url', urlencode( $current_url ), wp_customize_url() ),
+			'meta'   => array(
+				'class' => 'hide-if-no-customize',
+			),
+		) );
+		add_action( 'wp_before_admin_bar_render', 'wp_customize_support_script' );
+	}
 
 	if ( current_theme_supports( 'widgets' )  )
 		$wp_admin_bar->add_menu( array( 'parent' => 'appearance', 'id' => 'widgets', 'title' => __('Widgets'), 'href' => admin_url('widgets.php') ) );

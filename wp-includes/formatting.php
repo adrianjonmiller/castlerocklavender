@@ -40,16 +40,18 @@ function wptexturize($text, $reset = false) {
 	// Set up static variables. Run once only.
 	if ( $reset || ! isset( $static_characters ) ) {
 		/**
-		 * Filter whether to skip running `wptexturize()`.
+		 * Filter whether to skip running wptexturize().
 		 *
-		 * Passing false to the filter will effectively short-circuit `wptexturize()`.
+		 * Passing false to the filter will effectively short-circuit wptexturize().
 		 * returning the original text passed to the function instead.
 		 *
-		 * The filter runs only once, the first time `wptexturize()` is called.
+		 * The filter runs only once, the first time wptexturize() is called.
 		 *
 		 * @since 4.0.0
 		 *
-		 * @param bool $run_texturize Whether to short-circuit `wptexturize()`.
+		 * @see wptexturize()
+		 *
+		 * @param bool $run_texturize Whether to short-circuit wptexturize().
 		 */
 		$run_texturize = apply_filters( 'run_wptexturize', $run_texturize );
 		if ( false === $run_texturize ) {
@@ -96,19 +98,20 @@ function wptexturize($text, $reset = false) {
 		$static_characters = array_merge( array( '...', '``', '\'\'', ' (tm)' ), $cockney );
 		$static_replacements = array_merge( array( '&#8230;', $opening_quote, $closing_quote, ' &#8482;' ), $cockneyreplace );
 
-		$spaces = wp_spaces_regexp();
-
 
 		// Pattern-based replacements of characters.
+		// Sort the remaining patterns into several arrays for performance tuning.
+		$dynamic_characters = array( 'apos' => array(), 'quote' => array(), 'dash' => array() );
+		$dynamic_replacements = array( 'apos' => array(), 'quote' => array(), 'dash' => array() );
 		$dynamic = array();
+		$spaces = wp_spaces_regexp();
 
 		// '99' and '99" are ambiguous among other patterns; assume it's an abbreviated year at the end of a quotation.
 		if ( "'" !== $apos || "'" !== $closing_single_quote ) {
-			$dynamic[ '/\'(\d\d)\'(?=\Z|[.,)}>\-\]]|' . $spaces . ')/' ] = $apos . '$1' . $closing_single_quote;
+			$dynamic[ '/\'(\d\d)\'(?=\Z|[.,)}\-\]]|&gt;|' . $spaces . ')/' ] = $apos . '$1' . $closing_single_quote;
 		}
-
 		if ( "'" !== $apos || '"' !== $closing_quote ) {
-			$dynamic[ '/\'(\d\d)"(?=\Z|[.,)}>\-\]]|' . $spaces . ')/' ] = $apos . '$1' . $closing_quote;
+			$dynamic[ '/\'(\d\d)"(?=\Z|[.,)}\-\]]|&gt;|' . $spaces . ')/' ] = $apos . '$1' . $closing_quote;
 		}
 
 		// '99 '99s '99's (apostrophe)  But never '9 or '99% or '999 or '99.0.
@@ -116,27 +119,19 @@ function wptexturize($text, $reset = false) {
 			$dynamic[ '/\'(?=\d\d(?:\Z|(?![%\d]|[.,]\d)))/' ] = $apos;
 		}
 
-		// Quoted Numbers like "42" or '42.00'
-		if ( '"' !== $opening_quote && '"' !== $closing_quote ) {
-			$dynamic[ '/(?<=\A|' . $spaces . ')"(\d[.,\d]*)"/' ] = $opening_quote . '$1' . $closing_quote;
-		}
+		// Quoted Numbers like '0.42'
 		if ( "'" !== $opening_single_quote && "'" !== $closing_single_quote ) {
 			$dynamic[ '/(?<=\A|' . $spaces . ')\'(\d[.,\d]*)\'/' ] = $opening_single_quote . '$1' . $closing_single_quote;
 		}
 
 		// Single quote at start, or preceded by (, {, <, [, ", -, or spaces.
 		if ( "'" !== $opening_single_quote ) {
-			$dynamic[ '/(?<=\A|[([{<"\-]|' . $spaces . ')\'/' ] = $opening_single_quote;
+			$dynamic[ '/(?<=\A|[([{"\-]|&lt;|' . $spaces . ')\'/' ] = $opening_single_quote;
 		}
 
 		// Apostrophe in a word.  No spaces, double apostrophes, or other punctuation.
 		if ( "'" !== $apos ) {
-			$dynamic[ '/(?<!' . $spaces . ')\'(?!\Z|[.,:;"\'(){}<>[\]\-]|' . $spaces . ')/' ] = $apos;
-		}
-
-		// 9" (double prime)
-		if ( '"' !== $double_prime ) {
-			$dynamic[ '/(?<=\d)"/' ] = $double_prime;
+			$dynamic[ '/(?<!' . $spaces . ')\'(?!\Z|[.,:;"\'(){}[\]\-]|&[lg]t;|' . $spaces . ')/' ] = $apos;
 		}
 
 		// 9' (prime)
@@ -144,9 +139,28 @@ function wptexturize($text, $reset = false) {
 			$dynamic[ '/(?<=\d)\'/' ] = $prime;
 		}
 
+		// Single quotes followed by spaces or ending punctuation.
+		if ( "'" !== $closing_single_quote ) {
+			$dynamic[ '/\'(?=\Z|[.,)}\-\]]|&gt;|' . $spaces . ')/' ] = $closing_single_quote;
+		}
+
+		$dynamic_characters['apos'] = array_keys( $dynamic );
+		$dynamic_replacements['apos'] = array_values( $dynamic );
+		$dynamic = array();
+
+		// Quoted Numbers like "42"
+		if ( '"' !== $opening_quote && '"' !== $closing_quote ) {
+			$dynamic[ '/(?<=\A|' . $spaces . ')"(\d[.,\d]*)"/' ] = $opening_quote . '$1' . $closing_quote;
+		}
+
+		// 9" (double prime)
+		if ( '"' !== $double_prime ) {
+			$dynamic[ '/(?<=\d)"/' ] = $double_prime;
+		}
+
 		// Double quote at start, or preceded by (, {, <, [, -, or spaces, and not followed by spaces.
 		if ( '"' !== $opening_quote ) {
-			$dynamic[ '/(?<=\A|[([{<\-]|' . $spaces . ')"(?!' . $spaces . ')/' ] = $opening_quote;
+			$dynamic[ '/(?<=\A|[([{\-]|&lt;|' . $spaces . ')"(?!' . $spaces . ')/' ] = $opening_quote;
 		}
 
 		// Any remaining double quotes.
@@ -154,10 +168,9 @@ function wptexturize($text, $reset = false) {
 			$dynamic[ '/"/' ] = $closing_quote;
 		}
 
-		// Single quotes followed by spaces or ending punctuation.
-		if ( "'" !== $closing_single_quote ) {
-			$dynamic[ '/\'(?=\Z|[.,)}>\-\]]|' . $spaces . ')/' ] = $closing_single_quote;
-		}
+		$dynamic_characters['quote'] = array_keys( $dynamic );
+		$dynamic_replacements['quote'] = array_values( $dynamic );
+		$dynamic = array();
 
 		// Dashes and spaces
 		$dynamic[ '/---/' ] = $em_dash;
@@ -165,8 +178,8 @@ function wptexturize($text, $reset = false) {
 		$dynamic[ '/(?<!xn)--/' ] = $en_dash;
 		$dynamic[ '/(?<=' . $spaces . ')-(?=' . $spaces . ')/' ] = $en_dash;
 
-		$dynamic_characters = array_keys( $dynamic );
-		$dynamic_replacements = array_values( $dynamic );
+		$dynamic_characters['dash'] = array_keys( $dynamic );
+		$dynamic_replacements['dash'] = array_values( $dynamic );
 	}
 
 	// Must do this every time in case plugins use these filters in a context sensitive manner
@@ -206,7 +219,7 @@ function wptexturize($text, $reset = false) {
 		.		'[^\[\]<>]'	// Shortcodes do not contain other shortcodes.
 		.	'|'
 		.		'<[^>]+>' 	// HTML elements permitted. Prevents matching ] before >.
-		.	')+'
+		.	')++'
 		.	'\]'		// Find end of shortcode.
 		.	'\]?'		// Shortcodes may end with ]]
 		. ')/s';
@@ -214,31 +227,47 @@ function wptexturize($text, $reset = false) {
 	$textarr = preg_split( $regex, $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
 
 	foreach ( $textarr as &$curl ) {
-		// Only call _wptexturize_pushpop_element if $curl is a delimeter.
+		// Only call _wptexturize_pushpop_element if $curl is a delimiter.
 		$first = $curl[0];
 		if ( '<' === $first && '>' === substr( $curl, -1 ) ) {
-			// This is an HTML delimeter.
+			// This is an HTML delimiter.
 
 			if ( '<!--' !== substr( $curl, 0, 4 ) ) {
 				_wptexturize_pushpop_element( $curl, $no_texturize_tags_stack, $no_texturize_tags );
 			}
 
-		} elseif ( '[' === $first && 1 === preg_match( '/^\[(?:[^\[\]<>]|<[^>]+>)+\]$/', $curl ) ) {
-			// This is a shortcode delimeter.
+		} elseif ( '' === trim( $curl ) ) {
+			// This is a newline between delimiters.  Performance improves when we check this.
+
+			continue;
+
+		} elseif ( '[' === $first && 1 === preg_match( '/^\[(?:[^\[\]<>]|<[^>]+>)++\]$/', $curl ) ) {
+			// This is a shortcode delimiter.
 
 			_wptexturize_pushpop_element( $curl, $no_texturize_shortcodes_stack, $no_texturize_shortcodes );
 
-		} elseif ( '[' === $first && 1 === preg_match( '/^\[\[?(?:[^\[\]<>]|<[^>]+>)+\]\]?$/', $curl ) ) {
-			// This is an escaped shortcode delimeter.
+		} elseif ( '[' === $first && 1 === preg_match( '/^\[\[?(?:[^\[\]<>]|<[^>]+>)++\]\]?$/', $curl ) ) {
+			// This is an escaped shortcode delimiter.
 
 			// Do not texturize.
 			// Do not push to the shortcodes stack.
 
+			continue;
+
 		} elseif ( empty( $no_texturize_shortcodes_stack ) && empty( $no_texturize_tags_stack ) ) {
-			// This is neither a delimeter, nor is this content inside of no_texturize pairs.  Do texturize.
+			// This is neither a delimiter, nor is this content inside of no_texturize pairs.  Do texturize.
 
 			$curl = str_replace( $static_characters, $static_replacements, $curl );
-			$curl = preg_replace( $dynamic_characters, $dynamic_replacements, $curl );
+
+			if ( false !== strpos( $curl, "'" ) ) {
+				$curl = preg_replace( $dynamic_characters['apos'], $dynamic_replacements['apos'], $curl );
+			}
+			if ( false !== strpos( $curl, '"' ) ) {
+				$curl = preg_replace( $dynamic_characters['quote'], $dynamic_replacements['quote'], $curl );
+			}
+			if ( false !== strpos( $curl, '-' ) ) {
+				$curl = preg_replace( $dynamic_characters['dash'], $dynamic_replacements['dash'], $curl );
+			}
 
 			// 9x9 (times), but never 0x9999
 			if ( 1 === preg_match( '/(?<=\d)x-?\d/', $curl ) ) {
@@ -362,6 +391,12 @@ function wpautop($pee, $br = true) {
 	$pee = preg_replace('!(<' . $allblocks . '[^>]*>)!', "\n$1", $pee);
 	$pee = preg_replace('!(</' . $allblocks . '>)!', "$1\n\n", $pee);
 	$pee = str_replace(array("\r\n", "\r"), "\n", $pee); // cross-platform newlines
+
+	if ( strpos( $pee, '<option' ) !== false ) {
+		// no P/BR around option
+		$pee = preg_replace( '|\s*<option|', '<option', $pee );
+		$pee = preg_replace( '|</option>\s*|', '</option>', $pee );
+	}
 
 	if ( strpos( $pee, '</object>' ) !== false ) {
 		// no P/BR around param and embed
@@ -1020,6 +1055,7 @@ function sanitize_file_name( $filename ) {
 	$special_chars = apply_filters( 'sanitize_file_name_chars', $special_chars, $filename_raw );
 	$filename = preg_replace( "#\x{00a0}#siu", ' ', $filename );
 	$filename = str_replace($special_chars, '', $filename);
+	$filename = str_replace( array( '%20', '+' ), '-', $filename );
 	$filename = preg_replace('/[\s-]+/', '-', $filename);
 	$filename = trim($filename, '.-_');
 
@@ -1284,7 +1320,7 @@ function sanitize_sql_orderby( $orderby ){
  * @since 2.8.0
  *
  * @param string $class The classname to be sanitized
- * @param string $fallback Optional. The value to return if the sanitization end's up as an empty string.
+ * @param string $fallback Optional. The value to return if the sanitization ends up as an empty string.
  * 	Defaults to an empty string.
  * @return string The sanitized value
  */
@@ -3325,8 +3361,12 @@ function sanitize_option($option, $value) {
 
 		case 'WPLANG':
 			$allowed = get_available_languages();
-			if ( ! in_array( $value, $allowed ) && ! empty( $value ) )
+			if ( ! is_multisite() && defined( 'WPLANG' ) && '' !== WPLANG && 'en_US' !== WPLANG ) {
+				$allowed[] = WPLANG;
+			}
+			if ( ! in_array( $value, $allowed ) && ! empty( $value ) ) {
 				$value = get_option( $option );
+			}
 			break;
 
 		case 'illegal_names':

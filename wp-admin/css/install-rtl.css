@@ -60,6 +60,11 @@ abbr {
 	border: 0;
 	font-variant: normal;
 }
+
+label {
+	cursor: pointer;
+}
+
 #logo {
 	margin: 6px 0 14px 0;
 	border-bottom: none;
@@ -93,7 +98,9 @@ abbr {
 	text-align: right;
 	padding: 0;
 }
-.step .button-large {
+.language-chooser.wp-core-ui .step .button.button-large {
+	height: 36px;
+	vertical-align: middle;
 	font-size: 14px;
 }
 textarea {
@@ -152,6 +159,8 @@ submit {
 }
 
 .form-table input[type=text],
+.form-table input[type=email],
+.form-table input[type=url],
 .form-table input[type=password] {
 	width: 206px;
 }
@@ -295,6 +304,8 @@ body.rtl,
 	}
 
 	.form-table td input[type="text"],
+	.form-table td input[type="email"],
+	.form-table td input[type="url"],
 	.form-table td input[type="password"],
 	.form-table td select,
 	.form-table td textarea,
@@ -313,40 +324,66 @@ body.rtl,
 }
 
 body.language-chooser {
-	max-width: 450px;
+	max-width: 300px;
 }
 
 .language-chooser select {
-	margin: 1px;
 	padding: 8px;
 	width: 100%;
 	display: block;
 	border: 1px solid #ddd;
-	-webkit-border-radius: 0;
-	border-radius: 0; /* Reset mobile webkit's default element styling */
-	-webkit-transition: .05s border-color ease-in-out;
-	transition: .05s border-color ease-in-out;
-	outline: 0;
-	-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
-	box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
 	background-color: #fff;
 	color: #333;
 	font-size: 16px;
-	font-family: inherit;
-	font-weight: inherit;
-}
-
-.language-chooser select:focus {
-	border-color: #5b9dd9;
-	-webkit-box-shadow: 0 0 2px rgba(30,140,190,0.8);
-	box-shadow: 0 0 2px rgba(30,140,190,0.8);
-}
-
-.wp-core-ui.language-chooser .button.button-hero {
-	font-size: 30px;
-	line-height: 30px;
+	font-family: Arial, sans-serif;
+	font-weight: normal;
 }
 
 .language-chooser p {
 	text-align: left;
+}
+
+.screen-reader-input,
+.screen-reader-text {
+	position: absolute;
+	margin: -1px;
+	padding: 0;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	border: 0;
+}
+
+.spinner {
+	background: url(../images/spinner.gif) no-repeat;
+	-webkit-background-size: 20px 20px;
+	background-size: 20px 20px;
+	visibility: hidden;
+	opacity: 0.7;
+	filter: alpha(opacity=70);
+	width: 20px;
+	height: 20px;
+	margin: 2px 5px 0;
+}
+
+.step .spinner {
+	display: inline-block;
+	margin-top: 8px;
+	margin-left: 15px;
+	vertical-align: top;
+}
+
+/**
+ * HiDPI Displays
+ */
+@media print,
+  (-o-min-device-pixel-ratio: 5/4),
+  (-webkit-min-device-pixel-ratio: 1.25),
+  (min-resolution: 120dpi) {
+
+	.spinner {
+		background-image: url(../images/spinner-2x.gif);
+	}
+
 }

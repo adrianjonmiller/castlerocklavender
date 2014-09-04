@@ -302,7 +302,7 @@ function edit_post( $post_data = null ) {
 			$image_alt = wp_unslash( $post_data['_wp_attachment_image_alt'] );
 			if ( $image_alt != get_post_meta( $post_ID, '_wp_attachment_image_alt', true ) ) {
 				$image_alt = wp_strip_all_tags( $image_alt, true );
-				// update_meta expects slashed
+				// update_meta expects slashed.
 				update_post_meta( $post_ID, '_wp_attachment_image_alt', wp_slash( $image_alt ) );
 			}
 		}
@@ -740,9 +740,10 @@ function add_meta( $post_ID ) {
 		$metavalue = trim( $metavalue );
 
 	if ( ('0' === $metavalue || ! empty ( $metavalue ) ) && ( ( ( '#NONE#' != $metakeyselect ) && !empty ( $metakeyselect) ) || !empty ( $metakeyinput ) ) ) {
-		// We have a key/value pair. If both the select and the
-		// input for the key have data, the input takes precedence:
-
+		/*
+		 * We have a key/value pair. If both the select and the input
+		 * for the key have data, the input takes precedence.
+		 */
  		if ( '#NONE#' != $metakeyselect )
 			$metakey = $metakeyselect;
 
@@ -1031,6 +1032,8 @@ function wp_edit_attachments_query( $q = false ) {
 		$states .= ',private';
 
 	$q['post_status'] = isset( $q['status'] ) && 'trash' == $q['status'] ? 'trash' : $states;
+	$q['post_status'] = isset( $q['attachment-filter'] ) && 'trash' == $q['attachment-filter'] ? 'trash' : $states;
+
 	$media_per_page = (int) get_user_option( 'upload_per_page' );
 	if ( empty( $media_per_page ) || $media_per_page < 1 )
 		$media_per_page = 20;
@@ -1050,8 +1053,16 @@ function wp_edit_attachments_query( $q = false ) {
 	if ( isset($q['post_mime_type']) && !array_intersect( (array) $q['post_mime_type'], array_keys($post_mime_types) ) )
 		unset($q['post_mime_type']);
 
-	if ( isset($q['detached']) )
+	foreach( array_keys( $post_mime_types ) as $type ) {
+		if ( isset( $q['attachment-filter'] ) && "post_mime_type:$type" == $q['attachment-filter'] ) {
+			$q['post_mime_type'] = $type;
+			break;
+		}
+	}
+
+	if ( isset( $q['detached'] ) || ( isset( $q['attachment-filter'] ) && 'detached' == $q['attachment-filter'] ) ) {
 		$q['post_parent'] = 0;
+	}
 
 	wp( $q );
 
@@ -1179,11 +1190,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 
 	if ( current_user_can( 'read_post', $post->ID ) ) {
 		$ptype = get_post_type_object( $post->post_type );
-		if( 'draft' == $post->post_status ) {
-			$view_post = __( 'Preview' );
-		} else {
-			$view_post = $ptype->labels->view_item;
-		}
+		$view_post = $ptype->labels->view_item;
 	}
 
 	if ( 'publish' == get_post_status( $post ) ) {
@@ -1220,7 +1227,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 		if( 'draft' == $post->post_status ) {
 			$preview_link = set_url_scheme( get_permalink( $post->ID ) );
 			/** This filter is documented in wp-admin/includes/meta-boxes.php */
-			$preview_link = apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', $preview_link ) );
+			$preview_link = apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', $preview_link ), $post );
 			$return .= "<span id='view-post-btn'><a href='" . esc_url( $preview_link ) . "' class='button button-small' target='wp-preview-{$post->ID}'>$view_post</a></span>\n";
 		} else {
 			$return .= "<span id='view-post-btn'><a href='" . get_permalink( $post ) . "' class='button button-small'>$view_post</a></span>\n";
@@ -1404,7 +1411,7 @@ function _admin_notice_post_locked() {
 		}
 
 		/** This filter is documented in wp-admin/includes/meta-boxes.php */
-		$preview_link = apply_filters( 'preview_post_link', $preview_link );
+		$preview_link = apply_filters( 'preview_post_link', $preview_link, $post );
 
 		/**
 		 * Filter whether to allow the post lock to be overridden.
@@ -1606,7 +1613,7 @@ function post_preview() {
 	$url = add_query_arg( $query_args, get_permalink( $post->ID ) );
 
 	/** This filter is documented in wp-admin/includes/meta-boxes.php */
-	return apply_filters( 'preview_post_link', $url );
+	return apply_filters( 'preview_post_link', $url, $post );
 }
 
 /**

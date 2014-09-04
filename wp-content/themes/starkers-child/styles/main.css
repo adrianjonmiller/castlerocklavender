@@ -72,6 +72,10 @@ h4 {
   float: left;
   margin-right: 30px; }
 
+.alignright {
+  float: right;
+  margin-left: 30px; }
+
 .slides img {
   max-height: 300px; }
 

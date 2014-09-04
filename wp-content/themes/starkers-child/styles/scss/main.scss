@@ -78,6 +78,11 @@ h4 {
 	margin-right: $pad;
 }
 
+.alignright {
+	float: right;
+	margin-left: $pad;
+}
+
 .slides img {
 	max-height: 300px;
 }

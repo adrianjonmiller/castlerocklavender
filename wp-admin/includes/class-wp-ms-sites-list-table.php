@@ -9,6 +9,16 @@
  */
 class WP_MS_Sites_List_Table extends WP_List_Table {
 
+	/**
+	 * Constructor.
+	 *
+	 * @since 3.1.0
+	 * @access public
+	 *
+	 * @see WP_List_Table::__construct() for more information on default arguments.
+	 *
+	 * @param array $args An associative array of arguments.
+	 */
 	public function __construct( $args = array() ) {
 		parent::__construct( array(
 			'plural' => 'sites',
@@ -38,8 +48,10 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			$s = trim($s, '*');
 		}
 
-		// If the network is large and a search is not being performed, show only the latest blogs with no paging in order
-		// to avoid expensive count queries.
+		/*
+		 * If the network is large and a search is not being performed, show only
+		 * the latest blogs with no paging in order to avoid expensive count queries.
+		 */
 		if ( !$s && wp_is_large_network() ) {
 			if ( !isset($_REQUEST['orderby']) )
 				$_GET['orderby'] = $_REQUEST['orderby'] = '';
@@ -143,7 +155,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			$this->view_switcher( $mode );
 	}
 
-	protected function get_columns() {
+	public function get_columns() {
 		$blogname_columns = ( is_subdomain_install() ) ? __( 'Domain' ) : __( 'Path' );
 		$sites_columns = array(
 			'cb'          => '<input type="checkbox" />',
@@ -177,7 +189,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		);
 	}
 
-	protected function display_rows() {
+	public function display_rows() {
 		global $mode;
 
 		$status_list = array(
