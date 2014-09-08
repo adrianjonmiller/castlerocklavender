@@ -4,7 +4,7 @@ class woocsvImport
 
 	public $importLog;
 	
-	public $version = '2.0.3';
+	public $version = '2.1.0';
 	
 	public $options;
 	
@@ -24,8 +24,8 @@ class woocsvImport
 		'merge_products'=>1,
 		'add_to_categories'=>1,
 		'debug'=>0,
-		'version' =>'2.0.1',
 		'match_by' => 'sku',
+		'roles' => array('shop_manager'), 
 	);
 
 	public $fields = array (
@@ -45,7 +45,7 @@ class woocsvImport
 		13 => 'length',
 		14 => 'width' ,
 		15 => 'height' ,
-		16 => 'images', //deprecated since 1.2.0, will be removed in 1.4.0
+//2.1.0		16 => 'images', //deprecated since 1.2.0, will be removed in 1.4.0
 		17 => 'tax_status',
 		18 => 'tax_class' ,
 		19 => 'stock_status', 	// instock, outofstock
@@ -120,7 +120,7 @@ class woocsvImport
 		$message = $this->message;
 
 		if (!get_option('woocsv-options'))
-			$message .= '<p>Please save your settings!</p>';
+			$message .= __('Please save your settings!','woocsv-import');
 
 		$upload_dir = wp_upload_dir();
 		$dir = $upload_dir['basedir'] .'/csvimport/';
@@ -128,7 +128,7 @@ class woocsvImport
 			@mkdir($dir);
 		
 		if (!is_writable($upload_dir['basedir'] .'/csvimport/'))
-			$message .= '<p>Upload directory is not writable, please check you permissions</p>';
+			$message .= __('Upload directory is not writable, please check you permissions','woocsv-import');
 
 		$this->message = $message;
 		if ($message)

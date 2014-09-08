@@ -106,6 +106,18 @@
 				'has_archive' => true,
 			)
 		);
+		register_post_type( 'uses',
+			array(
+				'labels' => array(
+					'name' => __( 'Uses' ),
+					'singular_name' => __( 'Use' )
+				),
+				'public' => true,
+				'has_archive' => true,
+				'rewrite' => array('slug' => 'uses'),
+				'has_archive' => true,
+			)
+		);
 	}
 
 	add_action('init', 'my_custom_init');
