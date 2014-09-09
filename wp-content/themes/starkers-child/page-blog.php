@@ -25,7 +25,7 @@
 		)); ?>
 	</h2>
 	<?php
-	$args = array( 'post_type' => 'post', 'order' => 'ASC', 'orderby' => 'date' );
+	$args = array( 'post_type' => 'post', 'order' => 'DESC', 'orderby' => 'date' );
 	$loop = new WP_Query( $args );?>
 	
 	<div class="grid">
