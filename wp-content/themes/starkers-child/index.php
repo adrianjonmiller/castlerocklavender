@@ -15,7 +15,7 @@
 ?>
 <?php Starkers_Utilities::get_template_parts( array( 'parts/shared/html-header', 'parts/shared/header' ) ); ?>
 
-	<h2 class="page-title"><span>Lavender Recipes</span>
+	<h2 class="page-title"><span>Blog</span>
 		<?php wp_nav_menu(array(
 	    'container'=> 'nav',
 	    'menu_id' =>'shopping-cart-menu',
