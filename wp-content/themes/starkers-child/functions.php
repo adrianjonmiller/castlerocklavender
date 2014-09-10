@@ -6,7 +6,7 @@
 	// Modify Jquery 
 
 	wp_deregister_script('jquery');
-	wp_register_script('jquery', ("//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"), false, '1.9.0', true);
+	wp_register_script('jquery', get_stylesheet_directory_uri().'/js/vendor/jquery-1.9.1.min.js', false, '1.9.1', true);
 	wp_enqueue_script('jquery');
 
 	// Register Scripts
