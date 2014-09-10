@@ -250,3 +250,6 @@ footer {
 
 .flexslider {
   margin-bottom: 30px; }
+
+.flexslider {
+  overflow: hidden; }
