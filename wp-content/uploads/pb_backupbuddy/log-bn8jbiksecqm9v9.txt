@@ -1,0 +1,1 @@
+[Sep 8, 2014 23:29:14 0-error] Error #8778656: Dropbox error. Details: `The Dropbox SDK requires the cURL PHP extension, but it looks like you don't have it (couldn't find function "curl_init").  Library: "/var/www/castlerocklavender.com/httpsdocs/castlerocklavender/wp-content/plugins/backupbuddy/destinations/dropbox2/lib/Dropbox/RequestUtil.php".`. Error Code: 
