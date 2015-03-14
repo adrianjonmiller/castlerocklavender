@@ -7,7 +7,9 @@
  * @version     2.1.7
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 global $product, $post;
 
@@ -20,7 +22,12 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 		<tbody>
 			<?php
 				foreach ( $grouped_products as $product_id ) :
-					$product = get_product( $product_id );
+					$product = wc_get_product( $product_id );
+
+					if ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $product->is_in_stock() ) {
+						continue;
+					}
+
 					$post    = $product->post;
 					setup_postdata( $post );
 					?>
@@ -31,7 +38,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 							<?php else : ?>
 								<?php
 									$quantites_required = true;
-									woocommerce_quantity_input( array( 'input_name' => 'quantity[' . $product_id . ']', 'input_value' => '0' ) );
+									woocommerce_quantity_input( array( 'input_name' => 'quantity[' . $product_id . ']', 'input_value' => '0', 'min_value' => apply_filters( 'woocommerce_quantity_input_min', 0, $product ), 'max_value' => apply_filters( 'woocommerce_quantity_input_max', $product->backorders_allowed() ? '' : $product->get_stock_quantity(), $product ) ) );
 								?>
 							<?php endif; ?>
 						</td>
@@ -48,8 +55,10 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 							<?php
 								echo $product->get_price_html();
 
-								if ( ( $availability = $product->get_availability() ) && $availability['availability'] )
-									echo apply_filters( 'woocommerce_stock_html', '<p class="stock ' . esc_attr( $availability['class'] ) . '">' . esc_html( $availability['availability'] ) . '</p>', $availability['availability'] );
+								if ( $availability = $product->get_availability() ) {
+									$availability_html = empty( $availability['availability'] ) ? '' : '<p class="stock ' . esc_attr( $availability['class'] ) . '">' . esc_html( $availability['availability'] ) . '</p>';
+									echo apply_filters( 'woocommerce_stock_html', $availability_html, $availability['availability'], $product );
+								}
 							?>
 						</td>
 					</tr>
@@ -58,7 +67,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 
 				// Reset to parent grouped product
 				$post    = $parent_product_post;
-				$product = get_product( $parent_product_post->ID );
+				$product = wc_get_product( $parent_product_post->ID );
 				setup_postdata( $parent_product_post );
 			?>
 		</tbody>
